@@ -46,7 +46,7 @@ def upsert_session(session_data):
         {
             "$set": session_data,
             "$inc": {'n_bytes': session_data['bytes_count'], 'n_packets': session_data['packets_count']},
-            "$setOnInsert": {'start_time': session_data['start_time']}
+            # "$setOnInsert": {'start_time': session_data['timestamp']}
         },
         upsert=True
     )
