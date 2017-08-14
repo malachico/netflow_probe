@@ -4,29 +4,33 @@ from socket import inet_ntoa
 
 import dal
 
+SIZE_OF_HEADER = 24
+SIZE_OF_RECORD = 48
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(('0.0.0.0', 4739))
+
+
 HEADER_SIZE = 24
 RECORD_SIZE = 48
 
-    # buf, addr = sock.recvfrom(1500)
+while True:
+    buf, addr = sock.recvfrom(1500)
 
-
-def parse(timestamp, buf):
     # extract version and num of records
-    (version, count) = struct.unpack('!HH', buf[0:4])
-
-    # if not Netflow V5 - continue
+    (version, count) = struct.unpack('!HH', buf[0:4])  # if not Netflow V5 - continue
     if version != 5:
-        return
+        continue
 
     # if number of packets is unusual - continue
     if count <= 0 or count >= 1000:
-        return
+        continue
 
     # Current time in milliseconds since the export device booted
-    uptime = socket.ntohl(struct.unpack('I', buf[4:8])[0])
+    up_time = socket.ntohl(struct.unpack('I', buf[4:8])[0])
 
     # Current count of seconds since 0000 UTC 1970
-    epochseconds = socket.ntohl(struct.unpack('I', buf[8:12])[0])
+    timestamp = socket.ntohl(struct.unpack('I', buf[8:12])[0])
 
     # For each record
     for i in range(0, count):
