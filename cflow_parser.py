@@ -11,7 +11,13 @@ current = 44
 NETFLOW_PORT = 4739
 
 
-def parse(packet):
+def verify_input(packet):
+    """
+    given a packet return true if packet is IP / destined to NETFLOW port
+    else return false
+    :param packet:
+    :return:
+    """
     # Parse the input
     eth_frame = dpkt.ethernet.Ethernet(packet)
 
@@ -31,6 +37,14 @@ def parse(packet):
     if NETFLOW_PORT != udp_frame.dport:
         return
 
+    return True
+
+
+def parse(packet):
+    # Check if input is correct
+    if not verify_input(packet):
+        return
+
     # Go to start of data
     packet = packet[42:]
 
@@ -41,7 +55,7 @@ def parse(packet):
     if version != 5:
         return
 
-    # if number of packets is unusual - continue
+    # verify num of records
     if count <= 0 or count >= 1000:
         return
 
@@ -50,7 +64,7 @@ def parse(packet):
         # Point the current record
         base = HEADER_SIZE + (i * RECORD_SIZE)
 
-        # Unpack its data
+        # Unpack data
         data = struct.unpack('!IIIIHH', packet[base + 16:base + 36])
 
         # Extract the data to dict
@@ -65,4 +79,5 @@ def parse(packet):
              'dest_port': data[5],
              'protocol': ord(packet[base + 38])}
 
+        # Upsert session in DB
         dal.upsert_session(session_data)
