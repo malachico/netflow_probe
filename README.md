@@ -21,6 +21,6 @@ python sniffer.py -m sniff -i eth0
 python sniffer.py -m pcap -f *.pcap
 
 ##### help:
--m, --mode: mode of capturing: sniff | pcap
--i, --interface, interface to sniff from when in sniff mode
--f, --file, file to capture when in pcap mode
+-m, --mode: mode of capturing: sniff | pcap  
+-i, --interface, interface to sniff from when in sniff mode  
+-f, --file, file to capture when in pcap mode  
