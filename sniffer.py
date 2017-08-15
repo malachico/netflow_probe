@@ -10,11 +10,11 @@ import dpkt
 import cflow_parser
 import dal
 
-# Globals
+# ##### Globals #####
 g_packets_count = 0
 
 
-# Functions
+# ##### Functions #####
 def signal_handler(signal, frame):
     print '\nCtrl+C was pressed. Exit gracefully.'
     sys.exit(0)
@@ -57,6 +57,9 @@ def count_packet():
 
 
 def start_sniffing(interface):
+    """
+    sniffing traffic from a given interface
+    """
     cap = pcapy.open_live(interface, 100000, 1, 0)
 
     # While still sniffing:

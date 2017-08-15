@@ -29,6 +29,7 @@ def init_db():
     # Create db connection
     g_db = client['collector']
 
+    # Create DB indexes for faster performance
     g_db.sessions.create_index(
         [("src_ip", pymongo.DESCENDING), ("src_port", pymongo.DESCENDING), ("dest_ip", pymongo.DESCENDING),
          ("dest_port", pymongo.DESCENDING), ("protocol", pymongo.DESCENDING), ("start_time", pymongo.DESCENDING)])
