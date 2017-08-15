@@ -3,6 +3,7 @@ from socket import inet_ntoa
 
 import dpkt
 
+import json_client
 import dal
 
 HEADER_SIZE = 24
@@ -81,3 +82,6 @@ def parse(packet):
 
         # Upsert session in DB
         dal.upsert_session(session_data)
+
+        # Send session data to server
+        json_client.send_json_to_server(session_data)
