@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def process_packet(timestamp, packet):
     count_packet()
-    cflow_parser.parse(timestamp, packet)
+    cflow_parser.parse(packet)
 
 
 def read_pcap(file_to_read):
