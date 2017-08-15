@@ -9,6 +9,7 @@ current = 44
 
 
 def parse(packet):
+    # TODO: add input verification
     # extract version and num of records
     packet = packet[44:]
     (version, count) = struct.unpack('!HH', packet[0:4])
