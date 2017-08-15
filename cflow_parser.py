@@ -1,17 +1,40 @@
 import struct
 from socket import inet_ntoa
 
+import dpkt
+
 import dal
 
 HEADER_SIZE = 24
 RECORD_SIZE = 48
 current = 44
+NETFLOW_PORT = 4739
 
 
 def parse(packet):
-    # TODO: add input verification
+    # Parse the input
+    eth_frame = dpkt.ethernet.Ethernet(packet)
+
+    # If not IP return
+    if eth_frame.type != dpkt.ethernet.ETH_TYPE_IP:
+        return
+
+    ip_frame = eth_frame.data
+
+    # if not UDP return
+    if ip_frame.p != dpkt.ip.IP_PROTO_UDP:
+        return
+
+    udp_frame = ip_frame.data
+
+    # If it is not HTTPS return
+    if NETFLOW_PORT != udp_frame.dport:
+        return
+
+    # Go to start of data
+    packet = packet[42:]
+
     # extract version and num of records
-    packet = packet[44:]
     (version, count) = struct.unpack('!HH', packet[0:4])
 
     # if not Netflow V5 - continue
