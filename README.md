@@ -24,7 +24,3 @@ python sniffer.py -m pcap -f *.pcap
 -m, --mode: mode of capturing: sniff | pcap
 -i, --interface, interface to sniff from when in sniff mode
 -f, --file, file to capture when in pcap mode
-
-TODO:
-Add packet verification to cflow_parser.py in method parse.
-
