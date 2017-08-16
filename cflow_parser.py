@@ -1,6 +1,6 @@
 import struct
 from socket import inet_ntoa
-
+import time
 import dpkt
 
 import json_client
@@ -50,14 +50,20 @@ def parse(packet):
     packet = packet[42:]
 
     # extract version and num of records
+
     (version, count) = struct.unpack('!HH', packet[0:4])
+
+    uptime = struct.unpack('!I', packet[4:8])[0]
+
+    # Current epoch time
+    epoch_now = time.time()
 
     # if not Netflow V5 - continue
     if version != 5:
         return
 
     # verify num of records
-    if count <= 0 or count >= 1000:
+    if count <= 0 or count > 30:
         return
 
     # For each record
@@ -74,10 +80,12 @@ def parse(packet):
              'dest_ip': inet_ntoa(packet[base + 4:base + 8]),
              'packets_count': data[0],
              'bytes_count': data[1],
-             'start_time': data[2],
-             'end_time': data[3],
+             # epoch time - time of the machine uptime + start time of the session since the machine up
+             'start_time': epoch_now - uptime + data[2],
+             'end_time': epoch_now - uptime + data[3],
              'src_port': data[4],
              'dest_port': data[5],
+             'tcp_flags': ord(packet[base + 37]),
              'protocol': ord(packet[base + 38])}
 
         # Upsert session in DB

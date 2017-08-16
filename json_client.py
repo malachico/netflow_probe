@@ -18,7 +18,7 @@ def convert_message(session_data):
         'dstip': str(session_data['dest_ip']),
         'srcport': str(session_data['src_port']),
         'dstport': str(session_data['dest_port']),
-        'flags': str(0),
+        'flags': str(session_data['tcp_flags']),
     }
 
 
