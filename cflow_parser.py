@@ -42,15 +42,7 @@ def verify_input(packet):
 
 
 def parse(timestamp, packet):
-    # Check if input is correct
-    if not verify_input(packet):
-        return
-
-    # Go to start of data
-    packet = packet[42:]
-
     # extract version and num of records
-
     (version, count) = struct.unpack('!HH', packet[0:4])
 
     uptime = struct.unpack('!I', packet[4:8])[0]
