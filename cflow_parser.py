@@ -1,10 +1,10 @@
 import struct
 from socket import inet_ntoa
-import time
+
 import dpkt
 
-import json_client
 import dal
+import json_client
 
 HEADER_SIZE = 24
 RECORD_SIZE = 48
