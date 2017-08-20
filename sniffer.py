@@ -6,7 +6,7 @@ import sys
 import time
 
 import dpkt
-
+import socket
 import cflow_parser
 import dal
 
@@ -26,7 +26,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def process_packet(timestamp, packet):
     count_packet()
-    cflow_parser.parse(packet)
+    cflow_parser.parse(timestamp, packet)
 
 
 def read_pcap(file_to_read):
@@ -60,21 +60,29 @@ def start_sniffing(interface):
     """
     sniffing traffic from a given interface
     """
-    cap = pcapy.open_live(interface, 100000, 1, 0)
+    # cap = pcapy.open_live(interface, 100000, 1, 0)
+    #
+    # # While still sniffing:
+    # while True:
+    #     (header, payload) = cap.next()
+    #
+    #     # Extract packet
+    #     packet = str(payload)
+    #
+    #     if not packet:
+    #         continue
+    #
+    #     # Process packet
+    #     process_packet(time.time(), packet)
 
-    # While still sniffing:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind(('0.0.0.0', cflow_parser.NETFLOW_PORT))
+
     while True:
-        (header, payload) = cap.next()
-
-        # Extract packet
-        packet = str(payload)
-
-        if not packet:
-            continue
+        packet, addr = sock.recvfrom(1500)
 
         # Process packet
         process_packet(time.time(), packet)
-
 
 if __name__ == '__main__':
 

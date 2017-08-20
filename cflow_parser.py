@@ -41,7 +41,7 @@ def verify_input(packet):
     return True
 
 
-def parse(packet):
+def parse(timestamp, packet):
     # Check if input is correct
     if not verify_input(packet):
         return
@@ -54,9 +54,6 @@ def parse(packet):
     (version, count) = struct.unpack('!HH', packet[0:4])
 
     uptime = struct.unpack('!I', packet[4:8])[0]
-
-    # Current epoch time
-    epoch_now = time.time()
 
     # if not Netflow V5 - continue
     if version != 5:
@@ -80,9 +77,9 @@ def parse(packet):
              'dest_ip': inet_ntoa(packet[base + 4:base + 8]),
              'packets_count': data[0],
              'bytes_count': data[1],
-             # epoch time - time of the machine uptime + start time of the session since the machine up
-             'start_time': epoch_now - uptime + data[2],
-             'end_time': epoch_now - uptime + data[3],
+             # epoch time now - time of the machine uptime + start time of the session since the machine up
+             'start_time': timestamp - uptime + data[2],
+             'end_time': timestamp - uptime + data[3],
              'src_port': data[4],
              'dest_port': data[5],
              'tcp_flags': ord(packet[base + 37]),
