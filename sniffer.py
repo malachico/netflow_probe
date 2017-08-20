@@ -60,22 +60,10 @@ def start_sniffing(interface):
     """
     sniffing traffic from a given interface
     """
-    # cap = pcapy.open_live(interface, 100000, 1, 0)
-    #
-    # # While still sniffing:
-    # while True:
-    #     (header, payload) = cap.next()
-    #
-    #     # Extract packet
-    #     packet = str(payload)
-    #
-    #     if not packet:
-    #         continue
-    #
-    #     # Process packet
-    #     process_packet(time.time(), packet)
-
+    # Create UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Bind it to listen to the dedicated netflow port
     sock.bind(('0.0.0.0', cflow_parser.NETFLOW_PORT))
 
     while True:
