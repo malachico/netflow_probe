@@ -4,7 +4,7 @@ import pcapy
 import signal
 import sys
 import time
-
+import netifaces as ni
 import dpkt
 import socket
 import cflow_parser
@@ -63,8 +63,11 @@ def start_sniffing(interface):
     # Create UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+    ni.ifaddresses(interface)
+    ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+
     # Bind it to listen to the dedicated netflow port
-    sock.bind(('0.0.0.0', cflow_parser.NETFLOW_PORT))
+    sock.bind((ip, cflow_parser.NETFLOW_PORT))
 
     while True:
         packet, addr = sock.recvfrom(1500)
