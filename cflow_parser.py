@@ -3,8 +3,6 @@ from socket import inet_ntoa
 
 import logging
 
-import dpkt
-
 import dal
 import json_client
 
@@ -14,45 +12,8 @@ current = 44
 NETFLOW_PORT = 4739
 
 
-def verify_input(packet):
-    """
-    given a packet return true if packet is IP / destined to NETFLOW port
-    else return false
-    :param packet:
-    :return:
-    """
-    # Parse the input
-    eth_frame = dpkt.ethernet.Ethernet(packet)
-
-    # If not IP return
-    if eth_frame.type != dpkt.ethernet.ETH_TYPE_IP:
-        return
-
-    ip_frame = eth_frame.data
-
-    # if not UDP return
-    if ip_frame.p != dpkt.ip.IP_PROTO_UDP:
-        return
-
-    udp_frame = ip_frame.data
-
-    # If it is not HTTPS return
-    if NETFLOW_PORT != udp_frame.dport:
-        return
-
-    return True
-
-
 def parse(timestamp, packet):
-    # Check if input is correct
-    if not verify_input(packet):
-        return
-
-    # Go to start of data
-    packet = packet[42:]
-
     # extract version and num of records
-
     (version, count) = struct.unpack('!HH', packet[0:4])
 
     uptime = struct.unpack('!I', packet[4:8])[0]
@@ -89,7 +50,6 @@ def parse(timestamp, packet):
 
         # Log session
         logging.info("session parsed : %s" % (session_data, ))
-
 
         # Upsert session in DB
         dal.upsert_session(session_data)
