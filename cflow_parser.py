@@ -1,10 +1,12 @@
 import struct
 from socket import inet_ntoa
-import time
+
+import logging
+
 import dpkt
 
-import json_client
 import dal
+import json_client
 
 HEADER_SIZE = 24
 RECORD_SIZE = 48
@@ -84,6 +86,10 @@ def parse(timestamp, packet):
              'dest_port': data[5],
              'tcp_flags': ord(packet[base + 37]),
              'protocol': ord(packet[base + 38])}
+
+        # Log session
+        logging.info("session parsed : %s" % (session_data, ))
+
 
         # Upsert session in DB
         dal.upsert_session(session_data)

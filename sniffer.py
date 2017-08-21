@@ -1,17 +1,20 @@
 import argparse
 import glob
-import pcapy
+import logging
+import netifaces as ni
 import signal
+import socket
 import sys
 import time
-import netifaces as ni
+
 import dpkt
-import socket
+
 import cflow_parser
 import dal
 
 # ##### Globals #####
 g_packets_count = 0
+g_logger = None
 
 
 # ##### Functions #####
@@ -56,15 +59,15 @@ def count_packet():
         print "read %s packets" % (g_packets_count,)
 
 
-def start_sniffing(interface):
+def start_sniffing(iface):
     """
     sniffing traffic from a given interface
     """
     # Create UDP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    ni.ifaddresses(interface)
-    ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+    ni.ifaddresses(iface)
+    ip = ni.ifaddresses(iface)[ni.AF_INET][0]['addr']
 
     # Bind it to listen to the dedicated netflow port
     sock.bind((ip, cflow_parser.NETFLOW_PORT))
@@ -75,7 +78,17 @@ def start_sniffing(interface):
         # Process packet
         process_packet(time.time(), packet)
 
+
+def create_app_logger():
+    """
+    Sets global logger to writing to file
+    :return:
+    """
+    logging.basicConfig(filename='logs/collector.log', level=logging.DEBUG)
+
+
 if __name__ == '__main__':
+    create_app_logger()
 
     # Parse args
     parser = argparse.ArgumentParser()
@@ -98,17 +111,17 @@ if __name__ == '__main__':
         pcap_files.sort()
 
         for f in pcap_files:
-            print 'start reading file:', f
+            logging.info('start reading file: %s' % (f, ))
             # Read file
             read_pcap(f)
 
     elif args['mode'] == "sniff":
         # Parse the interface name arg
-        interface = args['interface']
+        iface = args['interface']
 
-        start_sniffing(interface)
+        start_sniffing(iface)
 
     # If the mode is non of the above
     else:
-        print "only pcap and sniff mode arguments are valid"
+        logging.error("only pcap and sniff mode arguments are valid")
         exit(1)
